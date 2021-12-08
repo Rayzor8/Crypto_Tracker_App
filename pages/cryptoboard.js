@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
+import CriptoList from '../components/CriptoList';
+import SearchForm from '../components/SearchForm';
 
 export const getStaticProps = async () => {
    const res = await axios.get(
@@ -15,71 +17,33 @@ export const getStaticProps = async () => {
 };
 
 const cryptoboard = ({ cryptoData }) => {
+   const [searchData, setSearchData] = useState('');
+
    return (
       <div className="px-6">
+         <SearchForm setSearchData={setSearchData} />
          <ul>
-            {cryptoData.map((data) => {
-               return (
-                  <li
-                     key={data.symbol}
-                     className="flex flex-col my-4  shadow-xl text-xs md:text-base"
-                  >
-                     <div className="flex gap-2 md:gap-10 justify-start items-center bg-blue-300 px-4 py-2 md:py-2  rounded-md flex-wrap">
-                        <div className="flex items-center gap-4">
-                           <p>
-                              Rank :{' '}
-                              <span className="font-bold">
-                                 {data.market_cap_rank}
-                              </span>
-                           </p>
-                           <img
-                              src={data.image}
-                              alt="symbol"
-                              className=" w-6 h-6 md:w-10 md:h-10"
-                           />
-                           <h1 className="text-base md:text-xl font-mono font-bold">
-                              {data.name}
-                           </h1>
-                           <p className="bg-white italic px-4 text-xs md:text-sm rounded-xl font-bold">
-                              {data.symbol.toUpperCase()}
-                           </p>
-                        </div>
-
-                        <p>MarketCap : {data.market_cap}</p>
-                        <p>Total Volume : {data.total_volume}</p>
-                        <p
-                           className={
-                              data.market_cap_change_percentage_24h > 0
-                                 ? 'text-green-700 font-bold'
-                                 : 'text-red-500 font-bold'
-                           }
-                        >
-                           {data.market_cap_change_percentage_24h}%{' '}
-                           <span className="text-black font-normal">
-                              / 24 hours
-                           </span>
-                        </p>
-                        <p>Total Supply : {data.total_supply}</p>
-                        <p>
-                           Ath Change :{' '}
-                           <span
-                              className={
-                                 data.market_cap_change_percentage_24h > 0
-                                    ? 'text-green-700 font-bold'
-                                    : 'text-red-500 font-bold'
-                              }
-                           >
-                              {data.ath_change_percentage}
-                           </span>{' '}
-                        </p>
-                     </div>
-                  </li>
-               );
-            })}
+            {cryptoData
+               .filter((data) => {
+                  if (searchData === '') {
+                     return data;
+                  } else if (
+                     data.name.toLowerCase().includes(searchData.toLowerCase())
+                  ) {
+                     return data;
+                  }
+               })
+               .map((data) => {
+                  return (
+                     <li
+                        key={data.symbol}
+                        className="flex flex-col my-4  shadow-xl text-xs md:text-base"
+                     >
+                        <CriptoList data={data} />
+                     </li>
+                  );
+               })}
          </ul>
-         <Link href="/">
-            <a>Back to Home</a>
-         </Link>
       </div>
    );
 };
